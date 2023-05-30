@@ -18,9 +18,9 @@ while y == "sim" :
     y = input('Deseja baixar outro filme ?')
 
 else:
-    print('programa finalizado')
-    print('By Alücard')
-    time.sleep(3)
+    print('Finished, thanks for using')
+    print('Developed Alücard')
+    time.sleep(4)
     exit()
 
 
