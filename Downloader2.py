@@ -1,64 +1,45 @@
+import re
 from pytube import YouTube
-import time 
-import tweepy
-import requests
+import time
+from alive_progress import alive_bar
 
-X = input('Deseja baixar do youtube ou do twitter ? 1 para youtube 2 para twitter')
+def download_video(url):
+    video = YouTube(url, on_progress_callback=progress_callback)
+    stream = video.streams.get_highest_resolution()
+    file_path = stream.download('C:\Vídeos Baixados')
 
-if X == 1:
-#youtube donwloader
-    x1 = input('Insira o link do vídeo:')
+    print("Download concluído!")
 
-    youtube = YouTube(x1)
+def progress_callback(stream, chunk, bytes_remaining):
+    total_bytes = stream.filesize
+    bytes_downloaded = total_bytes - bytes_remaining
+    percentage = (bytes_downloaded / total_bytes) * 100
+    progress_bar(int(percentage))
 
-    youtube.streams.get_highest_resolution().download('C:\Vídeos Baixados')
+r = input("Deseja baixar um vídeo? ")
+while r.lower() == "sim":
+    x = input("Insira o link do vídeo: ")
 
-    y1 = input('Deseja baixar outro filme ?')
-    while y1 == "sim" :
-        x1 = input('Insira o link do vídeo:')
-
-        youtube = YouTube(x1)
-
-        ys = youtube.streams.get_highest_resolution().download('C:\Vídeos Baixados')
-      
-        y = input('Deseja baixar outro filme ?')
-
+    youtube_regex = r"^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$"
+    if re.match(youtube_regex, x):
+        with alive_bar(100, bar='blocks') as progress_bar:
+            download_video(x)
     else:
-        print('programa finalizado')
-        print('By Alücard')
-        time.sleep(3)
+        print("Link inválido!")
+        retry = input("Deseja inserir um novo link válido? (sim/não): ")
+        if retry.lower() == "sim":
+            continue
+        else:
+            print('Finished, thanks for using')
+            print('Developed Alücard')
+            time.sleep(4)
+            exit()
+
+    r = input("Deseja baixar outro vídeo? (sim/não): ")
+    if r == "não":
+        print('Finished, thanks for using')
+        print('Developed Alücard')
+        time.sleep(4)
         exit()
 
-elif X==2:
-    
 
-# Credenciais da API do Twitter
-    consumer_key = 'sua_consumer_key'
-    consumer_secret = 'sua_consumer_secret'
-    access_token = 'seu_access_token'
-    access_token_secret = 'seu_access_token_secret'
-
-# Autenticação com a API do Twitter
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-
-# Criar um objeto API
-    api = tweepy.API(auth)
-
-# URL do tweet com o vídeo
-    z=input('Insira o link do vídeo')
-    tweet_url = z
-
-# Obter o ID do tweet
-    tweet_id = tweet_url.split('/')[-1]
-
-# Obter informações sobre o tweet
-    tweet = api.get_status(tweet_id, tweet_mode='extended')
-
-# Obter a URL do vídeo
-    video_url = tweet.extended_entities['media'][0]['video_info']['variants'][0]['url']
-
-# Baixar o vídeo
-    response = requests.get(video_url)
-    with open('video.mp4', 'wb') as f:
-        f.write(response.content)
